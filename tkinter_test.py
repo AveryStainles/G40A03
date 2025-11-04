@@ -1,41 +1,97 @@
 from tkinter import *
 from functools import partial
+import random
+import time
 
-# Globals
-root   = Tk()
-button = []
-player_turn = True
-
-def initialize_board() -> None:
-    global button
-    for a in range( 1, 102 ):
-        button.append(a)
-
-def alternate_player_turn(widget, index):
-    global player_turn
-    player_turn = not player_turn
-    widget = widget[index]
-    widget.configure(bg="cornsilk" if player_turn == None else "Red" if player_turn else "Yellow")
-
-def draw_board():
-    global button
-    for row in range(6):
-        for col in range(7):
-            index = row * 10 + col
-            button[index] = Button(
-                root, 
-                command = partial(alternate_player_turn, button, index), 
-                padx = 25, 
-                pady = 25, 
-                bg = 'blue')
+class MainGui:
+    root   = Tk()
+    all_buttons = [[],[],[],[],[],[]]
+    moves = [5, 5, 5, 5, 5, 5, 5]
+    player_turn = True
+    
+    def __init__(self):
+        self.draw_board()
+        
+        self.root.update()
+        time.sleep(1)
+        
+        while True:
             
-            button[index].grid(row=row, column=col)
+            # Get indexies for valid moves 
+            valid_moves_indeces = [self.moves.index(move) for move in self.moves if move >= 0]
+            
+            # Valid win state
+            if (len(valid_moves_indeces) is 0):
+                break
+            
+            # Make readable variables
+            random_move = valid_moves_indeces[random.randrange(0, len(valid_moves_indeces))]
+            row_index = self.moves[random_move]
+            col_index = random_move
+            
+            # Actuate target button
+            self.alternate_player_turn(self.all_buttons, row_index, col_index)
+            
+            # Track played move
+            self.all_buttons[row_index][col_index] = self.player_turn
+            self.moves[col_index] -= 1
+            
+            self.root.update()
+            # time.sleep(1)
+            
+            # Check horizontal
+            if (self.check_horizontal(row_index) or self.check_verticles(col_index)):
+                break
+        
+        self.root.mainloop()
+            
 
-initialize_board()
-draw_board()
-button[1 * 10 + 1]
+    def is_win_state(self) -> bool:
+        return False
+    
+    
+    def check_horizontal(self, row_index:int) -> bool:
+        pieces = self.all_buttons[row_index]
+        return self.is_list_containing_4_sequential_bools(pieces)
+    
+    
+    def check_verticles(self, col_index:int) -> bool:
+        pieces = [self.all_buttons[row_index][col_index] for row_index in range(0, len(self.all_buttons)) if isinstance(self.all_buttons[row_index][col_index], bool)]
+        return self.is_list_containing_4_sequential_bools(pieces)
 
-root.mainloop()
+
+    def is_list_containing_4_sequential_bools(self, pieces: list[bool]) -> bool:
+        if (len(pieces) < 4):
+            return False
+        
+        count_sequential_valid_pieces = 0
+        last_value = self.player_turn
+        
+        for piece in pieces:
+            if count_sequential_valid_pieces == 4:
+                return True
+            elif piece == last_value:
+                count_sequential_valid_pieces += 1
+            else: 
+                last_value = not last_value
+                count_sequential_valid_pieces = 1
+        
+        return count_sequential_valid_pieces == 4
 
 
+    def alternate_player_turn(self, all_buttons_list, x_index, y_index):
+        if (isinstance(all_buttons_list[x_index][y_index], bool)):
+            return
+        self.player_turn = not self.player_turn
+        all_buttons_list[x_index][y_index].configure(bg="cornsilk" if self.player_turn == None else "Red" if self.player_turn else "Yellow")
+        self.all_buttons[x_index][y_index] = self.player_turn
 
+
+    def draw_board(self):
+        for row_x in range(6):
+            for col_y in range(7):
+                button_to_add = Button(self.root, command = partial(self.alternate_player_turn, self.all_buttons, row_x, col_y), padx = 25, pady = 25, bg = 'blue')
+                self.all_buttons[row_x].append(button_to_add) 
+                self.all_buttons[row_x][col_y].grid(row=row_x, column=col_y)
+
+MainGui()
