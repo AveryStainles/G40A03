@@ -1,77 +1,97 @@
-from turtle import *
+from tkinter import *
+from functools import partial
+import random
+import time
 
-player_turn = True
-previous_move = []
-current_move = []
-
-# Skip the turtle drawing animation
-tracer(0, 0)
-
-# Setup initial parameters for the turtle screen
-def initialize_screen(screen_height = 800, screen_width = 800) -> None:
-    screen = Screen()
-    screen.setup(screen_width, screen_height)
-    bgcolor("Blue")
-    draw_board()
+class MainGui:
+    root   = Tk()
+    all_buttons = [[],[],[],[],[],[]]
+    moves = [5, 5, 5, 5, 5, 5, 5]
+    player_turn = True
     
-# Draw a circle at a specified position. 
-# If player_turn is not specified, colour should be default background
-def draw_circle(x_coordinate, y_coordinate, player_turn = None, radius = 25) -> None:
-    penup()
-    goto(x_coordinate, y_coordinate)
-    pendown()
-    fillcolor("cornsilk" if player_turn == None else "Red" if player_turn else "Yellow")
-    begin_fill()
-    circle(radius)
-    end_fill()
-
-
-starting_x_coordinate = (-72*4)+96
-starting_y_coordinate = -150
-circle_coordinate_offset = 60
-
-# Draw initial board state for the start of the game
-def draw_board():
-    x_coordinate =  starting_x_coordinate
-    y_coordinate = starting_y_coordinate
-    for _ in range(6):
-        for _ in range(7):
-            # Move coordinate for next column
-            draw_circle(x_coordinate, y_coordinate)
-            x_coordinate += circle_coordinate_offset
+    def __init__(self):
+        self.draw_board()
         
-        # Move coordinate for next row
-        x_coordinate = starting_x_coordinate
-        y_coordinate += circle_coordinate_offset
+        self.root.update()
+        time.sleep(1)
         
-def move(x_offset, y_offset):
-    global player_turn
-    player_turn = not player_turn
-    draw_circle(starting_x_coordinate + x_offset, starting_y_coordinate + y_offset, player_turn)
-    
-
-def main_loop():
-    while True:
-        try:
-            global player_turn
-            print(f"\nPlayer {1 if player_turn else 2}:") 
+        while True:
             
-            offset_x = int(input("Enter coordinate x: "))-1
-            if (offset_x < 0 or offset_x > 6):
-                print(f"\n X coordinate is invalid") 
-                continue
+            # Get indexies for valid moves 
+            valid_moves_indeces = [index for index, move in enumerate(self.moves) if move >= 0]
             
-            offset_y = int(input("Enter coordinate y: "))-1
-            if (offset_y < 0 or offset_y > 5):
-                print(f"\n Y coordinate is invalid") 
-                continue
-                
-            move(circle_coordinate_offset * offset_x, circle_coordinate_offset * offset_y)
-        except:
-            print(f"\nThanks for playing!") 
-            break
+            # Valid win state
+            if (len(valid_moves_indeces) is 0):
+                break
+            
+            # Make readable variables
+            random_move = valid_moves_indeces[random.randrange(0, len(valid_moves_indeces))]
+            row_index = self.moves[random_move]
+            col_index = random_move
+            
+            # Actuate target button
+            self.alternate_player_turn(self.all_buttons, row_index, col_index)
+            
+            # Track played move
+            self.all_buttons[row_index][col_index] = self.player_turn
+            self.moves[col_index] -= 1
+            
+            self.root.update()
+            time.sleep(0.1)
+            
+            # Check horizontal
+            if (self.check_horizontal(row_index) or self.check_verticles(col_index)):
+                break
+        
+        self.root.mainloop()
+            
 
+    def is_win_state(self) -> bool:
+        return False
     
-initialize_screen()
-main_loop()
-exitonclick()
+    
+    def check_horizontal(self, row_index:int) -> bool:
+        pieces = self.all_buttons[row_index]
+        return self.is_list_containing_4_sequential_bools(pieces)
+    
+    
+    def check_verticles(self, col_index:int) -> bool:
+        pieces = [self.all_buttons[row_index][col_index] for row_index in range(0, len(self.all_buttons)) if isinstance(self.all_buttons[row_index][col_index], bool)]
+        return self.is_list_containing_4_sequential_bools(pieces)
+
+
+    def is_list_containing_4_sequential_bools(self, pieces: list[bool]) -> bool:
+        if (len(pieces) < 4):
+            return False
+        
+        count_sequential_valid_pieces = 0
+        last_value = self.player_turn
+        
+        for piece in pieces:
+            if count_sequential_valid_pieces == 4:
+                return True
+            elif piece == last_value:
+                count_sequential_valid_pieces += 1
+            else: 
+                last_value = not last_value
+                count_sequential_valid_pieces = 1
+        
+        return count_sequential_valid_pieces == 4
+
+
+    def alternate_player_turn(self, all_buttons_list, x_index, y_index):
+        if (isinstance(all_buttons_list[x_index][y_index], bool)):
+            return
+        self.player_turn = not self.player_turn
+        all_buttons_list[x_index][y_index].configure(bg="cornsilk" if self.player_turn == None else "Red" if self.player_turn else "Yellow")
+        self.all_buttons[x_index][y_index] = self.player_turn
+
+
+    def draw_board(self):
+        for row_x in range(6):
+            for col_y in range(7):
+                button_to_add = Button(self.root, command = partial(self.alternate_player_turn, self.all_buttons, row_x, col_y), padx = 25, pady = 25, bg = 'blue')
+                self.all_buttons[row_x].append(button_to_add) 
+                self.all_buttons[row_x][col_y].grid(row=row_x, column=col_y)
+
+MainGui()
