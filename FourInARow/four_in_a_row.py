@@ -21,7 +21,7 @@ class MainGui:
             valid_moves_indeces = [index for index, move in enumerate(self.moves) if move >= 0]
             
             # Valid win state
-            if (len(valid_moves_indeces) is 0):
+            if (len(valid_moves_indeces) == 0):
                 break
             
             # Make readable variables
@@ -39,8 +39,9 @@ class MainGui:
             self.root.update()
             time.sleep(0.1)
             
+            #  or self.check_horizontal(row_index) or self.check_verticles(col_index)
             # Check horizontal
-            if (self.check_horizontal(row_index) or self.check_verticles(col_index)):
+            if (self.check_diagonals(row_index, col_index)):
                 break
         
         self.root.mainloop()
@@ -56,9 +57,31 @@ class MainGui:
     
     
     def check_verticles(self, col_index:int) -> bool:
-        pieces = [self.all_buttons[row_index][col_index] for row_index in range(0, len(self.all_buttons)) if isinstance(self.all_buttons[row_index][col_index], bool)]
+        pieces = [self.all_buttons[row_index][col_index] if isinstance(self.all_buttons[row_index][col_index], bool) else None for row_index in range(0, len(self.all_buttons))]
         return self.is_list_containing_4_sequential_bools(pieces)
+    
+    
+    def check_diagonals(self, row_index:int, col_index:int) -> bool:
+        # Check bottom-right to top-left diagonal
+        lowest_valid_index_difference = 6 - row_index if (row_index >= col_index) else 5 - col_index 
+        x_index = row_index + lowest_valid_index_difference -1
+        y_index = col_index + lowest_valid_index_difference -1
+        diagonal_pieces = []
+        while True:            
+            if (x_index < 0 or y_index < 0):
+                break
+            diagonal_pieces.append(self.all_buttons[x_index][y_index] if isinstance(self.all_buttons[x_index][y_index], bool) else None)
+            x_index -= 1
+            y_index -= 1
+            
+        if (self.is_list_containing_4_sequential_bools(diagonal_pieces)):
+            return True
+            
+        # Check bottom-left to top-right diagonal
+        
+        return self.is_list_containing_4_sequential_bools(diagonal_pieces)
 
+        
 
     def is_list_containing_4_sequential_bools(self, pieces: list[bool]) -> bool:
         if (len(pieces) < 4):
@@ -70,6 +93,8 @@ class MainGui:
         for piece in pieces:
             if count_sequential_valid_pieces == 4:
                 return True
+            elif piece == None or not isinstance(piece, bool):
+                continue
             elif piece == last_value:
                 count_sequential_valid_pieces += 1
             else: 
