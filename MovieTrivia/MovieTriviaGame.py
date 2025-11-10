@@ -50,15 +50,17 @@ class MovieTriviaGame:
         
         # Add trivia questions
         for line in data:
+            # We found a trivia question
             if "Attr: class = ipc-html-content-inner-div" in line:
                 is_trivia_question = True
             
             if not is_trivia_question:
                 continue            
             
+            # Complete trivia question
             if "End Tag: div" in line:
                 is_trivia_question = False
-                parsed_data = hold_trivia_question.replace("\"", "").replace("\\", "").replace("\'", "").replace(" b ", "").replace("_           ", "").replace("      ", " ")[1:-2].strip()
+                parsed_data = hold_trivia_question.replace("\"", "").replace("\\", "").replace("\'", "").replace(" b ", "").replace("_           ", "").replace("      ", " ").replace("    .", ".").replace("     :", ":")[1:].strip()
                 trivia_questions.append(parsed_data)
                 hold_trivia_question = ""
                 movie_counter += 1
@@ -69,7 +71,7 @@ class MovieTriviaGame:
             elif "End Tag: a" in line:
                 is_a_tag = False
             
-            # Add trivia names and questions 
+            # Add trivia answers and questions 
             if(is_a_tag and "Data: " in line):
                 parsed_line = line.replace("Data: ", "")
                 actor_names.append(f"{movie_counter}:{parsed_line}")
@@ -78,17 +80,21 @@ class MovieTriviaGame:
                 hold_trivia_question += line.replace("Data: ", "")
 
 
-        trivia_answers = []
+        trivia_answers = {}
         for actor in actor_names:
-            trivia_answers.append(
-            {
-                "trivia_question_index": int(actor[:actor.index(":")]),
-                "actor": actor[4:].strip().replace("\'", "")
-            })
+            index = int(actor[:actor.index(":")])
+            data = actor[4:].strip().replace("\'", "")
+            if (index in trivia_answers):
+                trivia_answers[index].append(data)
+            else:
+                trivia_answers[index] = [data]
 
         for index, question in enumerate(trivia_questions):
+            actors = trivia_answers[index]
+            
             FileReadWriteHelper.write_data("Question: " + question, is_encoding=False)
-            [FileReadWriteHelper.write_data("   - " + answer["actor"], is_encoding=False) for answer in trivia_answers if int(answer["trivia_question_index"]) == index]
+            [FileReadWriteHelper.write_data("   - " + answer, is_encoding=False) for answer in actors]
+            FileReadWriteHelper.write_data("", is_encoding=False)
             
     
             

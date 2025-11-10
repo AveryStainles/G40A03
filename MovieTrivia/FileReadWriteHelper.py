@@ -11,7 +11,7 @@ class FileReadWriteHelper:
     def write_data(message: str, directory_path: str = _directory_path, file_name: str = _file_name, is_encoding: bool = True) -> None:
         file_path: Path = Path(f"{directory_path}/{file_name}")
         file = open(file_path, "a")
-        file.write(f"{message.encode("ascii", "ignore") if (is_encoding) else message.strip()}\n".replace("b\"b\'", "").replace("\'\"", "").strip() + "\n")
+        file.write(f"{message.encode("ascii", "ignore") if (is_encoding) else message.strip()}\n".replace("b\"b\'", "").replace("\'\"", "").replace(" ,", ",").strip() + "\n")
             
     @staticmethod
     def read_data(directory_path: str = _directory_path, file_name: str = _file_name) -> list[str] | None:
