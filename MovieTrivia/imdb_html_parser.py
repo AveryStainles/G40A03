@@ -13,6 +13,7 @@ class ImdbHTMLParser(HTMLParser):
         self.__tag = None
         self.__tag_attrs = None
 
+
     def handle_starttag(self, tag, attrs):
         FileReadWriteHelper.write_data(f"Start Tag: {tag}", FileReadWriteHelper._directory_path, FileReadWriteHelper._scraped_data_file_name)
         self.__tag = tag
@@ -25,8 +26,10 @@ class ImdbHTMLParser(HTMLParser):
             href = self.__tag_attrs.get('href')
             FileReadWriteHelper.write_data(f"    Link: {href}", FileReadWriteHelper._directory_path, FileReadWriteHelper._scraped_data_file_name)
 
+
     def handle_endtag(self, tag):
         FileReadWriteHelper.write_data(f"End Tag: {tag}", FileReadWriteHelper._directory_path, FileReadWriteHelper._scraped_data_file_name)
+
 
     def handle_data(self, data):
         if self.__tag == "script":
@@ -35,15 +38,16 @@ class ImdbHTMLParser(HTMLParser):
             FileReadWriteHelper.write_data(f"==================== Movie Title: {data}", FileReadWriteHelper._directory_path, FileReadWriteHelper._scraped_data_file_name)
         FileReadWriteHelper.write_data(f"    Data: {data}", FileReadWriteHelper._directory_path, FileReadWriteHelper._scraped_data_file_name)
 
+
     def unknown_decl(self, data):
         FileReadWriteHelper.write_data(f"Unknown: {data}", FileReadWriteHelper._directory_path, FileReadWriteHelper._scraped_data_file_name)
+        
         
     def run_scraper(self, url: str):
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
             "Accept-Language": "en-US,en;q=0.5",
-            "Accept": "text/html",
-        }
+            "Accept": "text/html",}
 
         req = request.Request(url, headers=headers)
         with request.urlopen(req) as resp:
@@ -51,15 +55,18 @@ class ImdbHTMLParser(HTMLParser):
             for each_line in lines:
                 parser.feed(each_line)
     
+    
+    
 parser = ImdbHTMLParser()
 
 # parser.run_scraper("https://www.imdb.com/chart/top/?ref_=nv_mv_250")
 # MovieTriviaGame.parse_top_25_movies()
 
-parser.run_scraper("https://www.imdb.com/title/tt0050083/?ref_=chttp_t_5")
-MovieTriviaGame.parse_top_25_movies()
+# parser.run_scraper("https://www.imdb.com/title/tt0111161/?ref_=chttp_t_1")
+# MovieTriviaGame.parse_movie()
 
- 
+parser.run_scraper("https://www.imdb.com/title/tt0111161/trivia/?ref_=tt_ov_ql_3")
+MovieTriviaGame.parse_trivia()
  
  
  
