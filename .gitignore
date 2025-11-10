@@ -1,2 +1,5 @@
 *.txt
 *.pyc
+MovieTrivia/__pycache__/FileReadWriteHelper.cpython-312.pyc
+MovieTrivia/__pycache__/MovieTriviaGame.cpython-312.pyc
+MovieTrivia/Data/temp.txt
