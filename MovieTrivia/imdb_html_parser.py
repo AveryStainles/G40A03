@@ -59,14 +59,14 @@ class ImdbHTMLParser(HTMLParser):
     
 parser = ImdbHTMLParser()
 
-# parser.run_scraper("https://www.imdb.com/chart/top/?ref_=nv_mv_250")
-# MovieTriviaGame.parse_top_25_movies()
+parser.run_scraper("https://www.imdb.com/chart/top/?ref_=nv_mv_250")
+MovieTriviaGame.parse_top_25_movies()
 
 # parser.run_scraper("https://www.imdb.com/title/tt0111161/?ref_=chttp_t_1")
 # MovieTriviaGame.parse_movie()
 
-parser.run_scraper("https://www.imdb.com/title/tt0111161/trivia/?ref_=tt_ov_ql_3")
-MovieTriviaGame.parse_trivia()
+# parser.run_scraper("https://www.imdb.com/title/tt0111161/trivia/?ref_=tt_ov_ql_3")
+# MovieTriviaGame.parse_trivia()
  
  
  
