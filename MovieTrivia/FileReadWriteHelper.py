@@ -27,3 +27,39 @@ class FileReadWriteHelper:
         file.close()
         
         return content
+    
+    
+    
+    
+    
+    
+    
+    # DATA EXAMPLE
+# =================================================
+
+# content_link: https://www.imdb.com/title/tt0468569/?ref_=chttp_t_3
+# title:            Data: 3. The Dark Knight
+# year:             2008
+# runtime:          2h 32m
+# content_rating: PG-13
+# score:            9.1
+# views:            3.1M
+# rating:           #3
+
+# Director: Frank Darabont
+# trivia_link: https://www.imdb.com/title/tt0111161/trivia/?ref_=tt_ov_ql_3
+# cast: 
+#   - Tim Robbins
+#   - Morgan Freeman
+#   - Bob Gunton
+#   - William Sadler
+#   - Clancy Brown
+#   - Gil Bellows
+#   - Mark Rolston
+#   - James Whitmore
+#   - Jeffrey DeMunn
+#   - Larry Brandenburg
+
+# Question: Andy and Reds opening chat in the prison yard, in which Red is throwing a baseball, took nine hours to shoot because director _ _ _ _ _   _ _ _ _ _ _ _ _ insisted on many takes of the scene before he was satisfied. _ _ _ _ _ _   _ _ _ _ _ _ _ threw the baseball for the entire nine hours without a word of complaint. He showed up for work the next day with his left arm in a sling.
+# - Frank Darabont
+# - Morgan Freeman

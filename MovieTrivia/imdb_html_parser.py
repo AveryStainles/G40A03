@@ -42,25 +42,6 @@ class ImdbHTMLParser(HTMLParser):
     def unknown_decl(self, data):
         FileReadWriteHelper.write_data(f"Unknown: {data}", FileReadWriteHelper._directory_path, FileReadWriteHelper._scraped_data_file_name)
         
-        
-    def run_scraper(self, url: str):
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-            "Accept-Language": "en-US,en;q=0.5",
-            "Accept": "text/html",}
-
-        req = request.Request(url, headers=headers)
-        with request.urlopen(req) as resp:
-            lines = list(line.decode("utf-8").strip() for line in resp.readlines())
-            for each_line in lines:
-                parser.feed(each_line)
-    
-    
-    
-parser = ImdbHTMLParser()
-
-parser.run_scraper("https://www.imdb.com/chart/top/?ref_=nv_mv_250")
-MovieTriviaGame.parse_top_25_movies()
 
 # parser.run_scraper("https://www.imdb.com/title/tt0111161/?ref_=chttp_t_1")
 # MovieTriviaGame.parse_movie()
