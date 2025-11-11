@@ -155,4 +155,4 @@ class Movie:
 
 
     def __repr__(self):
-        return f"{self.all_movies}\n{self.movie_id}\n{self.content_link}\n{self.trivia_link}\n{self.trivia_questions}\n{self.title}\n{self.year}\n{self.runtime}\n{self.score}\n{self.views}\n{self.rating}\n{self.director}\n{self.cast_members}\n"
+        return f"{self.movie_id}\n{self.content_link}\n{self.trivia_link}\n{self.trivia_questions}\n{self.title}\n{self.year}\n{self.runtime}\n{self.score}\n{self.views}\n{self.rating}\n{self.director}\n{self.cast_members}\n"

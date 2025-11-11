@@ -6,20 +6,10 @@ from Models.Movie import Movie
 class MovieTriviaGame:
     _movie_title = None
     _url_parser = ImdbHTMLParser()
-    # def __init__(self):
-    #     self.
-        
-
-
-# _url_parser.run_scraper("https://www.imdb.com/title/tt0111161/?ref_=chttp_t_1")
-# MovieTriviaGame.parse_movie()
-
-# _url_parser.run_scraper("https://www.imdb.com/title/tt0111161/trivia/?ref_=tt_ov_ql_3")
-# MovieTriviaGame.parse_trivia()
- 
     
     @staticmethod
     def run_scraper(url: str):
+        FileReadWriteHelper.clear_data()
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
             "Accept-Language": "en-US,en;q=0.5",
@@ -34,40 +24,36 @@ class MovieTriviaGame:
     
     #  Parses a single movie title
     @staticmethod
-    def parse_movie(url: str, directory: str = FileReadWriteHelper._directory_path, filename: str = FileReadWriteHelper._scraped_data_file_name):
+    def parse_movie(movie: Movie, directory: str = FileReadWriteHelper._directory_path, filename: str = FileReadWriteHelper._scraped_data_file_name):
+        MovieTriviaGame.run_scraper(movie.content_link)
         data = FileReadWriteHelper.read_data(directory, filename)
-        director = None
-        trivia_link = None
         is_looking_at_cast = False
-        cast: list[str] = []
         
         for line in data:
             # Directed by  
-            if (director is None and "Directed by " in line):
+            if (movie.director is "" and "Directed by " in line):
                 director = line[line.index("Directed by ")+len("Directed by "):]
                 director = director[:director.index(".")]
-                FileReadWriteHelper.write_data("Director: " + director, is_encoding=False)
+                movie.director = director[:-1].strip()
             
             # Link to trivia 
-            if (trivia_link is None and "Attr: href = /title/tt" in line and "/trivia/" in line): 
-                trivia_link = line
-                FileReadWriteHelper.write_data(trivia_link.replace("Attr: href = ", "https://www.imdb.com"))
-                
+            if (movie.trivia_link is "" and "Attr: href = /title/tt" in line and "/trivia/" in line): 
+                movie.trivia_link = line.replace("Attr: href = ", "https://www.imdb.com")[2:-1].strip()
             
             # Add cast members 
             if ("?ref_=tt_cst_t_" in line):
                 is_looking_at_cast = True
                 
-            if (is_looking_at_cast and len(cast) < 10 and "Data: " in line):
-                cast_member: str = line.replace("Data: ", "")
-                cast.append(cast_member)
-                FileReadWriteHelper.write_data(cast_member)
+            if (is_looking_at_cast and len(movie.cast_members) < 10 and "Data: " in line):
+                movie.cast_members.append(line.replace("Data: ", "")[2:-1].strip())
                 is_looking_at_cast = False
-                
+    
+        return movie
+        
     
     @staticmethod
-    def parse_trivia(url: str, directory: str = FileReadWriteHelper._directory_path, filename: str = FileReadWriteHelper._scraped_data_file_name):
-        # Attr: class = ipc-html-content-inner-div
+    def parse_trivia(movie:Movie, directory: str = FileReadWriteHelper._directory_path, filename: str = FileReadWriteHelper._scraped_data_file_name):
+        MovieTriviaGame.run_scraper(movie.trivia_link)
         data = FileReadWriteHelper.read_data(directory, filename)
         trivia_questions: list[str] = []
         actor_names: list[str] = []
@@ -113,21 +99,21 @@ class MovieTriviaGame:
         for actor in actor_names:
             index = int(actor[:actor.index(":")])
             data = actor[4:].strip().replace("\'", "")
-            if (index in trivia_answers):
+            if (index in trivia_answers.keys()):
                 trivia_answers[index].append(data)
             else:
                 trivia_answers[index] = [data]
 
-        for index, question in enumerate(trivia_questions):
+        for index in trivia_answers.keys():
             actors = trivia_answers[index]
-            
-            FileReadWriteHelper.write_data("Question: " + question, is_encoding=False)
-            [FileReadWriteHelper.write_data("   - " + answer, is_encoding=False) for answer in actors]
-            FileReadWriteHelper.write_data("", is_encoding=False)
+            movie.trivia_questions.append((trivia_questions[index], list(actors)))
+            # FileReadWriteHelper.write_data("Question: " + question, is_encoding=False)
+            # [FileReadWriteHelper.write_data("   - " + answer, is_encoding=False) for answer in actors]
+            # FileReadWriteHelper.write_data("", is_encoding=False)
             
             
     @staticmethod
-    def parse_top_25_movies(directory: str = FileReadWriteHelper._directory_path, filename: str = FileReadWriteHelper._scraped_data_file_name, url: str = "https://www.imdb.com/chart/top/?ref_=nv_mv_250"):
+    def parse_top_25_movies(directory: str = FileReadWriteHelper._directory_path, filename: str = FileReadWriteHelper._scraped_data_file_name, url: str = "https://www.imdb.com/chart/top/?ref_=nv_mv_250") -> list[Movie]:
         # Setup .txt files with parsed data
         _movies = []
         MovieTriviaGame.run_scraper(url)
@@ -157,7 +143,6 @@ class MovieTriviaGame:
             # Find the link to the movie title
             if "Attr: href = /title/tt" in line and "_=chttp_t_" in line:
                 last_link = line.replace("Attr: href = ", "https://www.imdb.com")
-                # FileReadWriteHelper.write_data(last_link)
                 target_line_counter = 6
                 
             # Get a set amount of data | The rest was not useful
@@ -169,12 +154,8 @@ class MovieTriviaGame:
                 and "Data: Rate" not in line 
                 and "Data: Mark as watched" not in line):
 
-                # Save Data to file
-                # FileReadWriteHelper.write_data(line)
-                
                 # All parsed data is added to a list and is mapped to an object by index at the end of this method
                 parse_data = line[line.index("Data:")+len("Data:"):-1].strip()
-
                 parsed_data.append("N/A" if parse_data is None and len(parse_data) == 0 else parse_data)
                 
                 # All data for this movie has been collected. Add parsed content to list and stop tracking
@@ -182,7 +163,6 @@ class MovieTriviaGame:
                 if (target_line_counter == 0):
                     movie_counter += 1
                     parsed_data.append(str(movie_counter))
-                    # FileReadWriteHelper.write_data(str(movie_counter), is_encoding=False)
         
         return _movies
 

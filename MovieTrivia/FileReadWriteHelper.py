@@ -8,6 +8,13 @@ class FileReadWriteHelper:
         
         
     @staticmethod
+    def clear_data(directory_path: str = _directory_path, file_name: str = _scraped_data_file_name):
+        file_path: Path = Path(f"{directory_path}/{file_name}")
+        file = open(file_path, "w")
+        file.write("")
+            
+        
+    @staticmethod
     def write_data(message: str, directory_path: str = _directory_path, file_name: str = _file_name, is_encoding: bool = True) -> None:
         file_path: Path = Path(f"{directory_path}/{file_name}")
         file = open(file_path, "a")
