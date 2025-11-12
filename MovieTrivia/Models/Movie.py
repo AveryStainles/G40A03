@@ -136,22 +136,21 @@ class Movie:
     def add_cast_member(self, cast_member: str) -> None:
         self._cast_members.append(cast_member)
             
- 
     movie_id: int = property(get_movie_id, set_movie_id)
     
     content_link: str = property(get_content_link, set_content_link)
     trivia_link: str = property(get_trivia_link, set_trivia_link)
     
-    trivia_questions: list[(str, list[str])] = property(get_trivia_questions, set_trivia_questions)
-    title: str = property(get_title, set_title)
-    year: str = property(get_year, set_year)
-    runtime: str = property(get_runtime, set_runtime)
-    score: str = property(get_score, set_score)
-    views: str = property(get_views, set_views)
-    rating: str = property(get_rating, set_rating)
-    content_rating: str = property(get_content_rating, set_content_rating)
-    director: str = property(get_director, set_director)
-    cast_members: list[str] = property(get_cast_members, set_cast_members)
+    trivia_questions:   list[(str, list[str])] = property(get_trivia_questions, set_trivia_questions)
+    title:              str = property(get_title, set_title)
+    year:               str = property(get_year, set_year)
+    runtime:            str = property(get_runtime, set_runtime)
+    score:              str = property(get_score, set_score)
+    views:              str = property(get_views, set_views)
+    rating:             str = property(get_rating, set_rating)
+    content_rating:     str = property(get_content_rating, set_content_rating)
+    director:           str = property(get_director, set_director)
+    cast_members:       list[str] = property(get_cast_members, set_cast_members)
 
 
     def __repr__(self):

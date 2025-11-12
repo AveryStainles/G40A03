@@ -107,10 +107,7 @@ class MovieTriviaGame:
         for index in trivia_answers.keys():
             actors = trivia_answers[index]
             movie.trivia_questions.append((trivia_questions[index], list(actors)))
-            # FileReadWriteHelper.write_data("Question: " + question, is_encoding=False)
-            # [FileReadWriteHelper.write_data("   - " + answer, is_encoding=False) for answer in actors]
-            # FileReadWriteHelper.write_data("", is_encoding=False)
-            
+
             
     @staticmethod
     def parse_top_25_movies(directory: str = FileReadWriteHelper._directory_path, filename: str = FileReadWriteHelper._scraped_data_file_name, url: str = "https://www.imdb.com/chart/top/?ref_=nv_mv_250") -> list[Movie]:
@@ -165,6 +162,55 @@ class MovieTriviaGame:
                     parsed_data.append(str(movie_counter))
         
         return _movies
+
+
+    @staticmethod
+    def missing_property_trivia(movie: Movie, trivia_questions: list[(str, list[str])]):
+        
+        # Parse property names
+        properties = [property for property in dir(Movie) 
+            if not (property.startswith("__") and property.endswith("__")) 
+                and not (property.startswith("set_") 
+                    or property.startswith("get_") 
+                    or property.startswith("add_") 
+                    or property.endswith("_link") 
+                    or property.endswith("_id")
+                    or "trivia" in property)]
+        
+        question: str = "With the provided information below, fill in the missing data:<>"
+
+        # Setup a missing property question where each property can make 1 question
+        for missing_property_index in range(len(properties)):
+            question_options: str = ""
+            answers: list[str] = []
+            
+            # exception case
+            if properties[missing_property_index] == "cast_members":
+                question_options += f"<>{"Name of a cast member: "}"
+                answers = movie.cast_members
+            
+            for index, property_name in enumerate(properties):
+                property_value = getattr(movie, property_name)
+                parsed_name = property_name.capitalize().replace("_", " ")
+                
+                # exception case
+                if property_name == "cast_members":
+                    continue
+                
+                # Setup question options
+                question_options += f"<>{parsed_name}: "
+                
+                # Set the answer for the given permutation
+                if index == missing_property_index:
+                    answers.append(property_value.lower())
+                    continue
+                
+                # Display the property value because it is not the answer for this question
+                question_options += f"{property_value}"
+            
+            trivia_questions.append((question + question_options, answers))
+    
+
 
                     
 # https://www.imdb.com/title/tt0111161/?ref_=chttp_t_1
